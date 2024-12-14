@@ -5,6 +5,7 @@ import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { UpdateProvider } from './UpdateContext';
+import { AuthProvider } from './AuthContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,14 +48,16 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <UpdateProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="update" options={{ title: 'Manage Updates' }} />
-        </Stack>
-      </ThemeProvider>
-    </UpdateProvider>
+    <AuthProvider>
+      <UpdateProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="update" options={{ title: 'Manage Updates' }} />
+          </Stack>
+        </ThemeProvider>
+      </UpdateProvider>
+    </AuthProvider>
   );
 }
 

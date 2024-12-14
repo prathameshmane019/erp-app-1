@@ -6,16 +6,24 @@ import { router } from 'expo-router';
 export default function LandingScreen() {
   const handleNavigateToUpdate = () => {
     router.push('/Update');
+  }; 
+  const handleNavigateToLogin = () => {
+    router.push('/Login');
   };
 
   return (
     <View style={styles.container}>
       <Image
-        source={require('@/assets/images/icon.png')}
+        source={require('@/assets/images/main.png')}
         style={styles.logo}
       />
       <Text style={styles.title}>ERP System</Text>
       <Text style={styles.subtitle}>Welcome to the ERP System</Text>
+      <TouchableOpacity style={styles.button} onPress={handleNavigateToLogin}>
+
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={handleNavigateToUpdate}>
         <Text style={styles.buttonText}>Manage Updates</Text>
       </TouchableOpacity>
@@ -51,6 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: '100%',
     alignItems: 'center',
+    margin:10
   },
   buttonText: {
     color: 'white',
