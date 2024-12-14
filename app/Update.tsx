@@ -1,18 +1,14 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useUpdateContext } from './UpdateContext';
 import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 
 export default function UpdateScreen() {
   const { updateInfo, checkForUpdates, performUpdate } = useUpdateContext();
-  const colorScheme = useColorScheme();
 
   const formatDate = (dateString: string | null): string => {
-    return dateString 
-      ? new Date(dateString).toLocaleString() 
-      : 'Never';
+    return dateString ? new Date(dateString).toLocaleString() : 'Never';
   };
 
   return (
@@ -35,7 +31,18 @@ export default function UpdateScreen() {
             </Text>
           </View>
 
-          {updateInfo.isUpdateAvailable && updateInfo.updateDetails && (
+          {updateInfo.isLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={Colors.light.tint} />
+              {updateInfo.updateProgress > 0 && (
+                <Text style={styles.progressText}>
+                  Downloading: {updateInfo.updateProgress}%
+                </Text>
+              )}
+            </View>
+          )}
+
+          {updateInfo.isUpdateAvailable && updateInfo.updateDetails && !updateInfo.isLoading && (
             <View style={styles.updateNotice}>
               <Text style={styles.updateTitle}>Update Available</Text>
               
@@ -72,12 +79,17 @@ export default function UpdateScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
             onPress={checkForUpdates}
-            style={[styles.button, styles.checkButton]}
+            disabled={updateInfo.isLoading}
+            style={[
+              styles.button, 
+              styles.checkButton,
+              updateInfo.isLoading && styles.disabledButton
+            ]}
           >
             <Text style={styles.buttonText}>Check Updates</Text>
           </TouchableOpacity>
 
-          {updateInfo.isUpdateAvailable && (
+          {updateInfo.isUpdateAvailable && !updateInfo.isLoading && (
             <TouchableOpacity 
               onPress={performUpdate}
               style={[styles.button, styles.updateButton]}
@@ -90,7 +102,6 @@ export default function UpdateScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -177,5 +188,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  loadingContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  progressText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  }
 });
-

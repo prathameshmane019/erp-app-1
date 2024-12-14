@@ -1,3 +1,4 @@
+// UpdateContext.tsx
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import * as Updates from 'expo-updates';
 
@@ -14,6 +15,8 @@ interface UpdateInfo {
   currentVersion: string | null;
   updateDetails: UpdateDetails | null;
   error: string | null;
+  isLoading: boolean;
+  updateProgress: number;
 }
 
 interface UpdateContextType {
@@ -28,57 +31,85 @@ export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({
     isUpdateAvailable: false,
     lastChecked: null,
-    currentVersion: null,
+    currentVersion: Updates.manifest?.version ?? null,
     updateDetails: null,
-    error: null
+    error: null,
+    isLoading: false,
+    updateProgress: 0
   });
 
   const checkForUpdates = async (): Promise<void> => {
+    setUpdateInfo(prev => ({ ...prev, isLoading: true, error: null }));
+    
     try {
       const update = await Updates.checkForUpdateAsync();
       
-      setUpdateInfo(prev => ({
-        ...prev,
-        isUpdateAvailable: update.isAvailable,
-        lastChecked: new Date().toISOString(),
-        currentVersion: update.isAvailable ? new Date().toISOString() : null, // Set to null if no update is available
-        error: null
-      }));
-  
       if (update.isAvailable) {
-        const updateDetails = await fetchUpdateDetails(update);
+        const manifest = await Updates.manifest;
+        const updateDetails: UpdateDetails = {
+          version: manifest?.version ?? 'Unknown',
+          description: manifest?.extra?.description ?? 'No description available',
+          size: manifest?.extra?.size ?? 'Unknown',
+          releaseDate: new Date().toISOString()
+        };
+
         setUpdateInfo(prev => ({
           ...prev,
-          updateDetails
+          isUpdateAvailable: true,
+          lastChecked: new Date().toISOString(),
+          updateDetails,
+          isLoading: false
+        }));
+      } else {
+        setUpdateInfo(prev => ({
+          ...prev,
+          isUpdateAvailable: false,
+          lastChecked: new Date().toISOString(),
+          isLoading: false
         }));
       }
     } catch (error) {
       setUpdateInfo(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }));
-    }
-  };
-  const performUpdate = async (): Promise<void> => {
-    try {
-      await Updates.fetchUpdateAsync();
-      await Updates.reloadAsync();
-    } catch (error) {
-      setUpdateInfo(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Update failed'
+        error: error instanceof Error ? error.message : 'Check for updates failed',
+        isLoading: false
       }));
     }
   };
 
-  const fetchUpdateDetails = async (update: Updates.Update): Promise<UpdateDetails> => {
-    const manifest = await Updates.getManifestAsync();
-    return {
-      version: manifest.version,
-      description: manifest.description,
-      size: manifest.size,
-      releaseDate: manifest.releaseDate
-    };
+  const performUpdate = async (): Promise<void> => {
+    setUpdateInfo(prev => ({ 
+      ...prev, 
+      isLoading: true, 
+      error: null,
+      updateProgress: 0 
+    }));
+
+    try {
+      // Download update
+      const update = await Updates.fetchUpdateAsync(
+        (progress: { totalBytesWritten: number; totalBytesExpected: number; }) => {
+          setUpdateInfo(prev => ({
+            ...prev,
+            updateProgress: Math.round((progress.totalBytesWritten / progress.totalBytesExpected) * 100)
+          }));
+        }
+      );
+
+      if (!update) {
+        throw new Error('Update download failed');
+      }
+
+      // Apply update
+      await Updates.reloadAsync();
+    } catch (error) {
+      setUpdateInfo(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Update failed',
+        isLoading: false,
+        updateProgress: 0
+      }));
+    }
   };
 
   useEffect(() => {
@@ -103,5 +134,3 @@ export const useUpdateContext = (): UpdateContextType => {
   }
   return context;
 };
-
-export default UpdateContext;
