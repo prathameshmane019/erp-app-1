@@ -42,6 +42,12 @@
         "projectId": "1c1e922c-2199-4919-92a4-1d52f53b8585"
       }
     },
-    "owner": "maneprathamesh019"
+    "owner": "maneprathamesh019",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1c1e922c-2199-4919-92a4-1d52f53b8585"
+    }
   }
 }
