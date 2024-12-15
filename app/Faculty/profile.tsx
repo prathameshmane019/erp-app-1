@@ -1,5 +1,5 @@
 
-// app/(app)/profile.tsx
+// app/(faculty)/profile.tsx
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';

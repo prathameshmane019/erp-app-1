@@ -1,3 +1,4 @@
+//theme.tsx
 export const theme = {
     colors: {
       primary: '#6200EE',

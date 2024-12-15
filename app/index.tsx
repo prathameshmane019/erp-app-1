@@ -1,14 +1,16 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { Image, StyleSheet } from 'react-native';
+import {  Text, Button } from '@/components/ThemedComponents';
 import { router } from 'expo-router';
-
-export default function LandingScreen() {
+import { COLORS, SIZES, TYPOGRAPHY } from '@/constants';
+import { View } from '@/components/Themed';
+export default function HomeScreen() {
   const handleNavigateToUpdate = () => {
-    router.push('/Update');
-  }; 
+    router.push('/update');
+  };
+  
   const handleNavigateToLogin = () => {
-    router.push('/Login');
+    router.push('/login');
   };
 
   return (
@@ -17,16 +19,21 @@ export default function LandingScreen() {
         source={require('@/assets/images/main.png')}
         style={styles.logo}
       />
-      <Text style={styles.title}>ERP System</Text>
-      <Text style={styles.subtitle}>Welcome to the ERP System</Text>
-      <TouchableOpacity style={styles.button} onPress={handleNavigateToLogin}>
-
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={handleNavigateToUpdate}>
-        <Text style={styles.buttonText}>Manage Updates</Text>
-      </TouchableOpacity>
+      <Text variant="h1" color="primary" style={styles.title}>ERP System</Text>
+      <Text variant="h3" color="secondary" style={styles.subtitle}>Welcome to the ERP System</Text>
+      <Button 
+        title="Login" 
+        onPress={handleNavigateToLogin}
+        size="large"
+        style={styles.button}
+      />
+      <Button 
+        title="Manage Updates" 
+        onPress={handleNavigateToUpdate}
+        variant="outlined"
+        size="large"
+        style={styles.button}
+      />
     </View>
   );
 }
@@ -36,34 +43,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: SIZES.large,
+    // backgroundColor: COLORS.background.default,
   },
   logo: {
     width: 120,
     height: 120,
-    marginBottom: 20,
+    marginBottom: SIZES.large,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: SIZES.small,
   },
   subtitle: {
-    fontSize: 18,
-    marginBottom: 30,
+    marginBottom: SIZES.xlarge,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#2196F3',
-    padding: 15,
-    borderRadius: 5,
     width: '100%',
-    alignItems: 'center',
-    margin:10
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginBottom: SIZES.medium,
   },
 });
+

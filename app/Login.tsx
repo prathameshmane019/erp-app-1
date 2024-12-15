@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useAuth } from './AuthContext';
+import { COLORS } from '@/constants';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   activeRole: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: COLORS.primary.main,
     borderColor: '#2196F3',
   },
 });
