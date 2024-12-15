@@ -4,7 +4,9 @@ import {  Text, Button } from '@/components/ThemedComponents';
 import { router } from 'expo-router';
 import { COLORS, SIZES, TYPOGRAPHY } from '@/constants';
 import { View } from '@/components/Themed';
+
 export default function HomeScreen() {
+
   const handleNavigateToUpdate = () => {
     router.push('/update');
   };

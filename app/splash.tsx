@@ -12,7 +12,7 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!loading) {
       if (user) {
-        router.replace('/Faculty/profile');
+        router.replace(`/(${user.role})`);
       } else {
         router.replace('/');
       }

@@ -1,9 +1,10 @@
 
 // app/login.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useAuth } from './AuthContext';
+import { router } from 'expo-router';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -11,6 +12,18 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'faculty' | 'student'>('student');
 
+   const { user, loading } = useAuth();
+  
+    useEffect(() => {
+      if (!loading) {
+        if (user) {
+          router.replace(`/(${user?.role})`);
+        } else {
+          router.replace('/');
+        }
+      }
+    }, [user, loading]);
+  
   const handleLogin = async () => {
     try {
       await login(id, password, role);

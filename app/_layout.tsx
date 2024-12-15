@@ -119,7 +119,9 @@ function RootLayoutNav() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="login" options={{ title: 'Login' }} />
             <Stack.Screen name="update" options={{ title: 'Manage Updates' }} />
-            <Stack.Screen name="Faculty" options={{ headerShown: false }} />
+            <Stack.Screen name="(faculty)/profile" options={{ headerShown: false }} />
+            <Stack.Screen name="(faculty)/index" options={{ headerShown: false }} />
+            <Stack.Screen name="(faculty)/attendance/index" options={{ headerShown: false }} />
           </Stack>
         </ThemeProvider>
       </UpdateProvider>

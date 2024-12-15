@@ -5,10 +5,16 @@ import { StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert } from 'reac
 import { Text, View } from '@/components/Themed';
 import { useAuth } from '../AuthContext';
 import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
+
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
+    _id:user?._id,
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || ''
@@ -17,14 +23,8 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     try {
       const token = await SecureStore.getItemAsync('token');
-      const response = await fetch('YOUR_API_URL/api/user/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await axios.put(`${API_URL}/api/faculty_id${formData._id}`,formData)
+      
 
       if (!response.ok) {
         throw new Error('Failed to update profile');

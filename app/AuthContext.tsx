@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await SecureStore.setItemAsync('token', data.token);
       await SecureStore.setItemAsync('user', JSON.stringify(data.user));
       setUser(data.user);
-      router.replace('/Faculty/profile');
+      router.replace('/(faculty)');
     } catch (error) {
       console.error('Login error:', error);
       throw error;

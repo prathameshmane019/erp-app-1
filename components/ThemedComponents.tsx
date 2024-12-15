@@ -1,8 +1,7 @@
 // components/ThemedComponents.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-    Text, 
-    View, 
+     
     TouchableOpacity, 
     StyleSheet, 
     TextProps, 
@@ -14,7 +13,7 @@ import {
     Switch,
     Platform,
   } from 'react-native';
-
+  import { Text as RNText, View as RNView, TextStyle, ViewStyle } from 'react-native';
   import { COLORS, TYPOGRAPHY, SIZES, BORDERRADIUS, SHADOW } from '@/constants';
 // Themed Text Component
 interface ThemedTextProps extends TextProps {
@@ -389,6 +388,63 @@ interface ThemedDropdownProps {
       />
     );
   };
+ 
+  
+  export const Text: React.FC<ThemedTextProps> = ({ style, variant = 'body1', color = 'primary', ...props }) => (
+    <RNText
+      style={[
+        {
+          fontFamily: TYPOGRAPHY.fontFamily.regular,
+          fontSize: TYPOGRAPHY.fontSize[variant],
+          color: COLORS.text[color],
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+  type ThemedViewProps = RNView['props'] & {
+    backgroundColor?: keyof typeof COLORS.background;
+  };
+  
+  export const View: React.FC<ThemedViewProps> = ({ style, backgroundColor = 'default', ...props }) => (
+    <RNView
+      style={[
+        {
+          backgroundColor: COLORS.background[backgroundColor],
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+interface ButtonProps extends TouchableOpacityProps {
+  title: string;
+  variant?: 'primary' | 'secondary' | 'outlined';
+}
+
+export const Button: React.FC<ButtonProps> = ({ title, variant = 'primary', style, ...props }) => (
+  <TouchableOpacity
+    style={[
+      styles.button,
+      variant === 'primary' && styles.primaryButton,
+      variant === 'secondary' && styles.secondaryButton,
+      variant === 'outlined' && styles.outlinedButton,
+      style,
+    ]}
+    {...props}
+  >
+    <Text
+      style={[
+        styles.buttonText,
+        variant === 'outlined' && styles.outlinedButtonText,
+      ]}
+    >
+      {title}
+    </Text>
+  </TouchableOpacity>
+);
+
   
   // Themed Toggle Switch Component
   interface ThemedToggleSwitchProps {
@@ -554,6 +610,33 @@ interface ThemedDropdownProps {
     toggleSwitchLabel: {
       marginRight: SIZES.medium,
     },
+ 
+    button: {
+      paddingVertical: SIZES.small,
+      paddingHorizontal: SIZES.medium,
+      borderRadius: BORDERRADIUS.medium,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryButton: {
+      backgroundColor: COLORS.primary.main,
+    },
+    secondaryButton: {
+      backgroundColor: COLORS.secondary.main,
+    },
+    outlinedButton: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: COLORS.primary.main,
+    },
+    buttonText: {
+      color: COLORS.neutral.white,
+      fontSize: TYPOGRAPHY.fontSize.button,
+      fontWeight: 'bold',
+    },
+    outlinedButtonText: {
+      color: COLORS.primary.main,
+    },
   });
   
   // Export all components
@@ -569,6 +652,7 @@ interface ThemedDropdownProps {
     ThemedRadioButton as RadioButton,
     ThemedInputField as InputField,
     ThemedToggleSwitch as ToggleSwitch,
+    TouchableOpacity
   };
   
   
