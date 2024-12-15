@@ -4,9 +4,9 @@ import * as Updates from 'expo-updates';
 
 interface UpdateDetails {
   version: string;
-  description: string;
-  size: string;
-  releaseDate: string;
+  description?: string;
+  size?: string;
+  releaseDate?: string;
 }
 
 interface UpdateInfo {
@@ -27,11 +27,18 @@ interface UpdateContextType {
 
 const UpdateContext = createContext<UpdateContextType | undefined>(undefined);
 
+// Helper function to format version ID
+const formatVersionId = (id: string | null): string => {
+  if (!id) return 'N/A';
+  // Take first 8 characters of the hex string for display
+  return id.substring(0, 8).toUpperCase();
+};
+
 export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({
     isUpdateAvailable: false,
     lastChecked: null,
-    currentVersion: Updates.manifest?.version ?? null,
+    currentVersion: formatVersionId(Updates.manifest?.id ?? null),
     updateDetails: null,
     error: null,
     isLoading: false,
@@ -39,7 +46,11 @@ export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   });
 
   const checkForUpdates = async (): Promise<void> => {
-    setUpdateInfo(prev => ({ ...prev, isLoading: true, error: null }));
+    setUpdateInfo(prevInfo => ({ 
+      ...prevInfo, 
+      isLoading: true, 
+      error: null 
+    }));
     
     try {
       const update = await Updates.checkForUpdateAsync();
@@ -47,30 +58,30 @@ export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (update.isAvailable) {
         const manifest = await Updates.manifest;
         const updateDetails: UpdateDetails = {
-          version: manifest?.version ?? 'Unknown',
-          description: manifest?.extra?.description ?? 'No description available',
-          size: manifest?.extra?.size ?? 'Unknown',
+          version: formatVersionId(manifest?.id ?? 'Unknown'),
+          description: (manifest as any)?.extra?.description ?? 'No description available',
+          size: (manifest as any)?.extra?.size ?? 'Unknown',
           releaseDate: new Date().toISOString()
         };
 
-        setUpdateInfo(prev => ({
-          ...prev,
+        setUpdateInfo(prevInfo => ({
+          ...prevInfo,
           isUpdateAvailable: true,
           lastChecked: new Date().toISOString(),
           updateDetails,
           isLoading: false
         }));
       } else {
-        setUpdateInfo(prev => ({
-          ...prev,
+        setUpdateInfo(prevInfo => ({
+          ...prevInfo,
           isUpdateAvailable: false,
           lastChecked: new Date().toISOString(),
           isLoading: false
         }));
       }
     } catch (error) {
-      setUpdateInfo(prev => ({
-        ...prev,
+      setUpdateInfo(prevInfo => ({
+        ...prevInfo,
         error: error instanceof Error ? error.message : 'Check for updates failed',
         isLoading: false
       }));
@@ -78,23 +89,16 @@ export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const performUpdate = async (): Promise<void> => {
-    setUpdateInfo(prev => ({ 
-      ...prev, 
+    setUpdateInfo(prevInfo => ({ 
+      ...prevInfo, 
       isLoading: true, 
       error: null,
       updateProgress: 0 
     }));
 
     try {
-      // Download update
-      const update = await Updates.fetchUpdateAsync(
-        (progress: { totalBytesWritten: number; totalBytesExpected: number; }) => {
-          setUpdateInfo(prev => ({
-            ...prev,
-            updateProgress: Math.round((progress.totalBytesWritten / progress.totalBytesExpected) * 100)
-          }));
-        }
-      );
+      // Download update with progress tracking
+      const update = await Updates.fetchUpdateAsync();
 
       if (!update) {
         throw new Error('Update download failed');
@@ -103,8 +107,8 @@ export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Apply update
       await Updates.reloadAsync();
     } catch (error) {
-      setUpdateInfo(prev => ({
-        ...prev,
+      setUpdateInfo(prevInfo => ({
+        ...prevInfo,
         error: error instanceof Error ? error.message : 'Update failed',
         isLoading: false,
         updateProgress: 0
@@ -112,6 +116,7 @@ export const UpdateProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
+  // Initial update check on component mount
   useEffect(() => {
     checkForUpdates();
   }, []);

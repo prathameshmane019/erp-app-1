@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, ScrollView, Dimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Text, View, TouchableOpacity } from '@/components/ThemedComponents';
+import { Text, TouchableOpacity } from '@/components/ThemedComponents';
 import { useAuth } from '@/app/AuthContext';
 import { COLORS, SIZES, TYPOGRAPHY, BORDERRADIUS } from '@/constants';
 import { Feather } from '@expo/vector-icons';
@@ -73,8 +73,8 @@ export default function FacultyMenuScreen() {
         </View>
 
         <View style={styles.detailsCard}>
-          <DetailItem icon="mail" label="Email Address" value={faculty?.email} />
-          <DetailItem icon="book-open" label="Current Year" value={faculty?.currentYear} />
+          <DetailItem icon="mail" label="Email Address" value={faculty?.email || ""} />
+          <DetailItem icon="book-open" label="Current Year" value={faculty?.currentYear || ""} />
           <DetailItem 
             icon="briefcase" 
             label="Subjects" 
@@ -95,7 +95,7 @@ export default function FacultyMenuScreen() {
             title="Update Attendance"
             subtitle="Modify previous records"
             gradient={['#43e97b', '#38f9d7']}
-            onPress={() => router.push('/(faculty)/update-attendance')}
+            onPress={() => router.push('/(faculty)/attendance/updateattendance')}
           />
         </View>
       </ScrollView>
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: TYPOGRAPHY.fontSize.h2,
     fontWeight: 'bold',
-    // color: COLORS.neutral.white,
+    color: COLORS.neutral.white,
     marginBottom: SIZES.small,
   },
   designation: {
@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+
   },
   menuButtonGradient: {
     padding: SIZES.medium,

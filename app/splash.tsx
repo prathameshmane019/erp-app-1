@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Image, StyleSheet } from 'react-native';
 import {  Text } from '@/components/ThemedComponents';
@@ -12,7 +13,8 @@ export default function SplashScreen() {
   useEffect(() => {
     if (!loading) {
       if (user) {
-        router.replace(`/(${user.role})`);
+        user.role === 'faculty' ? router.replace('/(faculty)') : router.replace('/');
+        
       } else {
         router.replace('/');
       }
@@ -47,4 +49,3 @@ const styles = StyleSheet.create({
     marginBottom: SIZES.medium,
   },
 });
-

@@ -5,6 +5,8 @@ export interface User {
     name: string;
     email: string;
     phone?: string;
+    currentYear:string;
+    department:string;
     institute: {
       _id:string;
       name: string;
@@ -14,7 +16,7 @@ export interface User {
       _id: string;
       id: string;
       name: string;
-      batch: string;
+      batch: string[];
       subType: string;
     }>;
   }

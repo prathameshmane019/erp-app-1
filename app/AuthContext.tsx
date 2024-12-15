@@ -65,7 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await SecureStore.deleteItemAsync('token');
       await SecureStore.deleteItemAsync('user');
+ 
+      
       setUser(null);
+      console.log("Profile after deleted user",user);
       router.replace('/');
     } catch (error) {
       console.error('Logout error:', error);

@@ -3,41 +3,52 @@ import { StyleSheet, StatusBar, Image, Dimensions, ScrollView } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Text, View, TouchableOpacity } from '@/components/ThemedComponents';
+import { Text, TouchableOpacity } from '@/components/ThemedComponents';
 import { useAuth } from '../AuthContext';
 import { COLORS, SIZES, TYPOGRAPHY, BORDERRADIUS } from '@/constants';
 import { Feather } from '@expo/vector-icons';
+import { View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 const CARD_WIDTH = width - 32;
 const CARD_HEIGHT = height * 0.2;
 
+// Define a type for the module structure
+type Module = {
+  name: string;
+  description: string;
+  icon: keyof typeof Feather.glyphMap;  // This ensures icon names are valid Feather icons
+  gradient: [string, string];  // This ensures the gradient is always a tuple of two strings
+  route: string;
+};
+
 export default function ModuleSelectionScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
-  const modules = useMemo(() => [
+  const modules = useMemo<Module[]>(() => [
     {
       name: 'Attendance',
       description: 'Track and manage attendance records',
       icon: 'calendar',
-      gradient: ['#4facfe', '#00f2fe'],
+      gradient: ['#4facfe', '#00f2fe'] as [string, string],
       route: user?.role === 'faculty' ? '/(faculty)/attendance' : '/student/attendance'
     },
-    {
-      name: 'Feedback',
-      description: 'Submit and review feedback',
-      icon: 'message-square',
-      gradient: ['#00e97b', '#3ff9d7'],
-      route: user?.role === 'faculty' ? '/faculty/feedback' : '/student/feedback'
-    },
-    {
-      name: user?.role === 'faculty' ? 'Course Management' : 'My Courses',
-      description: 'Manage your academic courses',
-      icon: 'book-open',
-      gradient: ['#fa709a', '#ffaa00'],
-      route: user?.role === 'faculty' ? '/faculty/courses' : '/student/courses'
-    }
+    // Commented modules remain the same structure
+    // {
+    //   name: 'Feedback',
+    //   description: 'Submit and review feedback',
+    //   icon: 'message-square',
+    //   gradient: ['#00e97b', '#3ff9d7'] as [string, string],
+    //   route: user?.role === 'faculty' ? '/(faculty)/feedback' : '/student/feedback'
+    // },
+    // {
+    //   name: user?.role === 'faculty' ? 'Course Management' : 'My Courses',
+    //   description: 'Manage your academic courses',
+    //   icon: 'book-open',
+    //   gradient: ['#fa709a', '#ffaa00'] as [string, string],
+    //   route: user?.role === 'faculty' ? '/faculty/courses' : '/student/courses'
+    // }
   ], [user?.role]);
 
   return (
@@ -54,10 +65,10 @@ export default function ModuleSelectionScreen() {
             </View>
           </View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity onPress={() => router.push('/profile')}>
+            <TouchableOpacity onPress={() => router.push('/(faculty)/profile')}>
               <Feather name="user" size={24} color={COLORS.primary.main} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/update-info')}>
+            <TouchableOpacity onPress={() => router.push('/update')}>
               <Feather name="refresh-cw" size={24} color={COLORS.primary.main} />
             </TouchableOpacity>
             <TouchableOpacity onPress={logout}>
@@ -67,7 +78,7 @@ export default function ModuleSelectionScreen() {
         </View>
 
         <View style={styles.moduleGrid}>
-          {modules.map((module, index) => (
+          {modules.map((module) => (
             <TouchableOpacity
               key={module.name}
               style={styles.moduleCard}
@@ -94,6 +105,7 @@ export default function ModuleSelectionScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

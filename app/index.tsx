@@ -26,14 +26,14 @@ export default function HomeScreen() {
       <Button 
         title="Login" 
         onPress={handleNavigateToLogin}
-        size="large"
+        // size="large"
         style={styles.button}
       />
       <Button 
         title="Manage Updates" 
         onPress={handleNavigateToUpdate}
         variant="outlined"
-        size="large"
+        // size="large"
         style={styles.button}
       />
     </View>

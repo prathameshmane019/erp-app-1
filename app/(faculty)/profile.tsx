@@ -26,7 +26,7 @@ export default function ProfileScreen() {
       const response = await axios.put(`${API_URL}/api/faculty_id${formData._id}`,formData)
       
 
-      if (!response.ok) {
+      if (!response?.status) {
         throw new Error('Failed to update profile');
       }
 

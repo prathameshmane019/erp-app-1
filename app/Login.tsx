@@ -1,5 +1,3 @@
-
-// app/login.tsx
 import { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
@@ -12,18 +10,17 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'faculty' | 'student'>('student');
 
-   const { user, loading } = useAuth();
-  
-    useEffect(() => {
-      if (!loading) {
-        if (user) {
-          router.replace(`/(${user?.role})`);
-        } else {
-          router.replace('/');
-        }
-      }
-    }, [user, loading]);
-  
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading) {
+      if (user) {
+        // Use the format suggested by the error message
+    user.role === 'faculty' ? router.replace('/(faculty)') : router.replace('/');
+      } 
+    }
+  }, [user, loading]);
+
   const handleLogin = async () => {
     try {
       await login(id, password, role);
@@ -38,13 +35,20 @@ export default function LoginScreen() {
       
       <View style={styles.roleSelector}>
         <TouchableOpacity 
-          style={[styles.roleButton, role === 'student' && styles.activeRole]}
+          style={[
+            styles.roleButton, 
+            role === 'student' && styles.activeRole
+          ]}
           onPress={() => setRole('student')}
         >
           <Text>Student</Text>
         </TouchableOpacity>
+        
         <TouchableOpacity 
-          style={[styles.roleButton, role === 'faculty' && styles.activeRole]}
+          style={[
+            styles.roleButton, 
+            role === 'faculty' && styles.activeRole
+          ]}
           onPress={() => setRole('faculty')}
         >
           <Text>Faculty</Text>
@@ -58,6 +62,7 @@ export default function LoginScreen() {
         onChangeText={setId}
         autoCapitalize="none"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -65,6 +70,7 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
+
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>

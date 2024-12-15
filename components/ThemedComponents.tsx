@@ -16,34 +16,29 @@ import {
   import { Text as RNText, View as RNView, TextStyle, ViewStyle } from 'react-native';
   import { COLORS, TYPOGRAPHY, SIZES, BORDERRADIUS, SHADOW } from '@/constants';
 // Themed Text Component
-interface ThemedTextProps extends TextProps {
-  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'body1' | 'body2' | 'subtitle1' | 'subtitle2' | 'caption';
-  color?: keyof typeof COLORS.text;
-  weight?: keyof typeof TYPOGRAPHY.fontWeight;
-}
 
-export const ThemedText: React.FC<ThemedTextProps> = ({
-  variant = 'body1',
-  color = 'primary',
-  weight = 'regular',
-  style,
-  ...props
-}) => {
-  return (
-    <Text
-      style={[
-        {
-          fontFamily: TYPOGRAPHY.fontFamily.regular,
-          fontSize: TYPOGRAPHY.fontSize[variant],
-          fontWeight: TYPOGRAPHY.fontWeight[weight],
-          color: COLORS.text[color],
-        },
-        style,
-      ]}
-      {...props}
-    />
-  );
+type FontWeight = '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | 'normal' | 'bold' | undefined;
+
+type ThemedTextProps = RNText['props'] & {
+  variant?: keyof typeof TYPOGRAPHY.fontSize;
+  color?: keyof typeof COLORS.text;
+  weight?: FontWeight;
 };
+
+export const ThemedText: React.FC<ThemedTextProps> = ({ style, variant = 'body1', color = 'primary', weight = 'normal', ...props }) => (
+  <RNText
+    style={[
+      {
+        fontFamily: TYPOGRAPHY.fontFamily.regular,
+        fontSize: TYPOGRAPHY.fontSize[variant],
+        color: COLORS.text[color],
+        fontWeight: weight,
+      },
+      style,
+    ]}
+    {...props}
+  />
+)
 
 // Themed Button Component
 interface ThemedButtonProps extends TouchableOpacityProps {
@@ -641,8 +636,6 @@ export const Button: React.FC<ButtonProps> = ({ title, variant = 'primary', styl
   
   // Export all components
   export {
-    ThemedText as Text,
-    ThemedButton as Button,
     ThemedCard as Card,
     ThemedDivider as Divider,
     ThemedDropdown as Dropdown,

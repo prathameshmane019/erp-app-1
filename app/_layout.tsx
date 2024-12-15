@@ -27,9 +27,9 @@
 //   });
 
 //   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-//   useEffect(() => {
-//     if (error) throw error;
-//   }, [error]);
+  // useEffect(() => {
+  //   if (error) throw error;
+  // }, [error]);
 
 //   useEffect(() => {
 //     if (loaded) {
@@ -120,8 +120,10 @@ function RootLayoutNav() {
             <Stack.Screen name="login" options={{ title: 'Login' }} />
             <Stack.Screen name="update" options={{ title: 'Manage Updates' }} />
             <Stack.Screen name="(faculty)/profile" options={{ headerShown: false }} />
-            <Stack.Screen name="(faculty)/index" options={{ headerShown: false }} />
-            <Stack.Screen name="(faculty)/attendance/index" options={{ headerShown: false }} />
+            <Stack.Screen name="(faculty)/index" options={{ title: 'ERP System' }}/>
+            <Stack.Screen name="(faculty)/attendance/index" options={{ title: 'Attendance Module' }}  />
+            <Stack.Screen name="(faculty)/attendance/takeattendance" options={{ title: 'New Attendance' }} />
+            <Stack.Screen name="(faculty)/attendance/updateattendance" options={{ title: 'Update Attendance' }} />
           </Stack>
         </ThemeProvider>
       </UpdateProvider>
