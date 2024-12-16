@@ -32,7 +32,7 @@ export default function ModuleSelectionScreen() {
       description: 'Track and manage attendance records',
       icon: 'calendar',
       gradient: ['#4facfe', '#00f2fe'] as [string, string],
-      route: user?.role === 'faculty' ? '/(faculty)/attendance' : '/student/attendance'
+      route: user?.role === 'faculty' ? '/faculty/attendance' : '/student/attendance'
     },
     // Commented modules remain the same structure
     // {
@@ -65,7 +65,7 @@ export default function ModuleSelectionScreen() {
             </View>
           </View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity onPress={() => router.push('/(faculty)/profile')}>
+            <TouchableOpacity onPress={() => router.push('/faculty/profile')}>
               <Feather name="user" size={24} color={COLORS.primary.main} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/update')}>

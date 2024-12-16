@@ -20,3 +20,4 @@ export interface User {
       subType: string;
     }>;
   }
+  export default {};

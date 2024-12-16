@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, ScrollView, Dimensions, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Text, TouchableOpacity } from '@/components/ThemedComponents';
 import { useAuth } from '@/app/AuthContext';
 import { COLORS, SIZES, TYPOGRAPHY, BORDERRADIUS } from '@/constants';
 import { Feather } from '@expo/vector-icons';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 32;
 
 interface MenuButtonProps {
   icon: string;
@@ -47,9 +44,7 @@ export default function FacultyMenuScreen() {
   const { user } = useAuth()
   const [faculty, setFaculty] = useState(user);
 
-  useEffect(() => {
-    // Any additional data fetching or processing can be done here
-  }, []);
+ 
 
   return (
     <LinearGradient
@@ -88,14 +83,14 @@ export default function FacultyMenuScreen() {
             title="Take Attendance"
             subtitle="Mark today's attendance"
             gradient={['#4facfe', '#00f2fe']}
-            onPress={() => router.push('/(faculty)/attendance/takeattendance')}
+            onPress={() => router.push('/faculty/attendance/takeattendance')}
           />
           <MenuButton 
             icon="clock"
             title="Update Attendance"
             subtitle="Modify previous records"
             gradient={['#43e97b', '#38f9d7']}
-            onPress={() => router.push('/(faculty)/attendance/updateattendance')}
+            onPress={() => router.push('/faculty/attendance/updateattendance')}
           />
         </View>
       </ScrollView>

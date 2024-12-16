@@ -15,8 +15,7 @@ export default function LoginScreen() {
   useEffect(() => {
     if (!loading) {
       if (user) {
-        // Use the format suggested by the error message
-    user.role === 'faculty' ? router.replace('/(faculty)') : router.replace('/');
+    user.role === 'faculty' ? router.replace('/faculty') : router.replace('/');
       } 
     }
   }, [user, loading]);

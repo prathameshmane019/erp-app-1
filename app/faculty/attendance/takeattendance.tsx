@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { StyleSheet, ScrollView, Alert } from 'react-native';
-import { Text, View, Button, TouchableOpacity } from '@/components/ThemedComponents';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import { Text, View, Button } from '@/components/ThemedComponents';
 import { Picker } from '@react-native-picker/picker';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { useAuth } from '@/app/AuthContext';
-import { COLORS, SIZES, TYPOGRAPHY, BORDERRADIUS } from '@/constants';
+import { COLORS, SIZES, BORDERRADIUS } from '@/constants';
 import { Feather } from '@expo/vector-icons';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -22,13 +22,6 @@ interface Subject {
   subType: "theory" | "practical" | "tg";
   batch?: string[];
 }
-interface AttendanceRecord {
-  _id: string;
-  subject: string;
-  date: string;
-  session: string;
-  records: { student: string; status: 'present' | 'absent' }[];
-}
 
 interface User {
   institute: {
@@ -37,65 +30,84 @@ interface User {
   subjects?: Subject[];
 }
 
-export default function UpdateAttendanceScreen() {
+export default function TakeAttendanceScreen() {
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
-  const [availableSessions, setAvailableSessions] = useState<number[]>([1,2,3,4,5,6,7]);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
+  const [availableSessions, setAvailableSessions] = useState<string[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
   const [loading, setLoading] = useState(false);
-  const [attendanceRecord, setAttendanceRecord] = useState<AttendanceRecord | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
- 
-   const { user } = useAuth() as { user: User };
- 
-  
-  const fetchAttendanceRecord = async () => {
-    if (!selectedSubject || !selectedDate || !selectedSession) {
-      Alert.alert('Error', 'Please select subject, date, and session');
-      return;
+  const { user } = useAuth() as { user: User };
+
+  useEffect(() => {
+    if (selectedSubject && selectedDate) {
+      fetchAvailableSessions();
     }
+  }, [selectedSubject, selectedBatch, selectedDate]);
 
-    setLoading(true);
+  const fetchAvailableSessions = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/v2/update-attendance`, {
+      const response = await axios.get(`${API_URL}/api/utils/available-sessions`, {
+        params: {
+          subjectId: selectedSubject,
+          batchId: selectedBatch,
+          date: selectedDate.toISOString().split('T')[0],
+        },
+      });
+      setAvailableSessions(response.data.availableSessions);
+    } catch (error) {
+      console.error('Error fetching available sessions:', error);
+      Alert.alert('Error', 'Failed to fetch available sessions');
+    }
+  };
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || selectedDate;
+    setShowDatePicker(Platform.OS === 'ios');
+    if (currentDate) {
+      setSelectedDate(currentDate);
+    }
+  };
+  const fetchStudents = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/v2/utils/attendance-data`, {
         params: {
           _id: selectedSubject,
           batchId: selectedBatch,
-          date: selectedDate.toISOString().split('T')[0],
-          session: selectedSession,
         },
       });
-      const { subject, students, attendanceRecord } = response.data;
-      setStudents(students || []);
-      setAttendanceRecord(attendanceRecord);
-      if (attendanceRecord) {
-        setSelectedStudents(new Set(attendanceRecord.records.filter((r: { status: string; }) => r.status === 'present').map((r: { student: any; }) => r.student)));
-      } else {
-        setSelectedStudents(new Set());
-      }
+      setStudents(response.data.students || []);
     } catch (error) {
-      console.error('Error fetching attendance record:', error);
-      Alert.alert('Error', 'Failed to fetch attendance record');
-    } finally {
-      setLoading(false);
+      console.error('Error fetching students:', error);
+      Alert.alert('Error', 'Failed to fetch students');
     }
   };
 
-  const updateAttendance = async () => {
-    if (!selectedSubject || !selectedSession) {
-      Alert.alert('Error', 'Please select a subject and session');
+  const handleTakeAttendance = () => {
+    if (selectedSubject && selectedDate && selectedSessions.length > 0) {
+
+      fetchStudents()
+
+    } else {
+      Alert.alert('Error', 'Please select subject, date, and at least one session');
+    }
+  };
+
+  const submitAttendance = async () => {
+    if (!selectedSubject || selectedSessions.length === 0) {
+      Alert.alert('Error', 'Please select a subject and at least one session');
       return;
     }
 
     const attendanceData = {
       subject: selectedSubject,
       date: selectedDate.toISOString().split('T')[0],
-      session: selectedSession,
-      institute:user?.institute._id,
+      session: selectedSessions,
+      institute: user?.institute._id,
       attendanceRecords: students.map(student => ({
         student: student._id,
         status: selectedStudents.has(student._id) ? 'present' : 'absent',
@@ -105,16 +117,18 @@ export default function UpdateAttendanceScreen() {
 
     setLoading(true);
     try {
-      await axios.put(`${API_URL}/api/v2/attendance`, attendanceData);
-      Alert.alert('Success', 'Attendance updated successfully');
-      setStudents([]);
-      setSelectedSession(null);
-      setSelectedSubject('');
-      setSelectedBatch(null);
+      console.log(attendanceData);
 
+      await axios.put(`${API_URL}/api/v2/attendance`, attendanceData);
+      Alert.alert('Success', 'Attendance submitted successfully');
+      // Reset form
+      setSelectedSubject("");
+      setSelectedBatch(null);
+      setSelectedSessions([]);
+      setSelectedStudents(new Set());
     } catch (error) {
-      console.error('Failed to update attendance:', error);
-      Alert.alert('Error', 'Failed to update attendance');
+      console.error('Failed to submit attendance:', error);
+      Alert.alert('Error', 'Failed to submit attendance');
     } finally {
       setLoading(false);
     }
@@ -123,7 +137,9 @@ export default function UpdateAttendanceScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.formContainer}>
-        <Text variant="h2" style={styles.title}>Update Attendance</Text>
+        <Text variant="h2" style={styles.title}>Take Attendance</Text>
+
+
         <View style={styles.inputContainer}>
           <Feather name="book" size={24} color={COLORS.primary.main} style={styles.inputIcon} />
           <Picker
@@ -154,42 +170,39 @@ export default function UpdateAttendanceScreen() {
           </View>
         )}
 
-        <Button
-          title={selectedDate.toDateString()}
-          onPress={() => setDatePickerVisibility(true)}
-          variant="outlined"
-          style={styles.dateButton}
-        />
 
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="date"
-          onConfirm={(date) => {
-            setSelectedDate(date);
-            setDatePickerVisibility(false);
-          }}
-          onCancel={() => setDatePickerVisibility(false)}
-        />
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
 
-        <View style={styles.inputContainer}>
-          <Feather name="clock" size={24} color={COLORS.primary.main} style={styles.inputIcon} />
-          <Picker
-            selectedValue={selectedSession}
-            onValueChange={setSelectedSession}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select Session" value={null} />
-            {availableSessions.map((session) => (
-              <Picker.Item key={session} label={session.toString()} value={session} />
-            ))}
-          </Picker>
-        </View>
+        <Text variant="h3" style={styles.sectionTitle}>Select Sessions</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sessionScrollView}>
+          {availableSessions.map(session => (
+            <Button
+              key={session}
+              title={session}
+              onPress={() => {
+                setSelectedSessions(prev =>
+                  prev.includes(session)
+                    ? prev.filter(s => s !== session)
+                    : [...prev, session]
+                );
+              }}
+              variant={selectedSessions.includes(session) ? 'primary' : 'outlined'}
+              style={styles.sessionButton}
+            />
+          ))}
+        </ScrollView>
 
         <Button
-          title="Fetch Attendance"
-          onPress={fetchAttendanceRecord}
-          style={styles.fetchButton}
-          disabled={loading}
+          title="Take Attendance"
+          onPress={handleTakeAttendance}
+          style={styles.takeAttendanceButton}
         />
 
         {students.length > 0 && (
@@ -219,13 +232,12 @@ export default function UpdateAttendanceScreen() {
           </View>
         )}
 
-        {attendanceRecord && (
-          <Button
-            title="Update Attendance"
-            onPress={updateAttendance}
-            style={styles.updateButton}
-            disabled={loading}
-          />
+        {students?.length > 0 && (<Button
+          title="Submit Attendance"
+          onPress={submitAttendance}
+          style={styles.submitButton}
+          disabled={loading}
+        />
         )}
       </View>
     </ScrollView>
@@ -263,12 +275,19 @@ const styles = StyleSheet.create({
   dateButton: {
     marginBottom: SIZES.medium,
   },
-  fetchButton: {
-    marginVertical: SIZES.medium,
-  },
   sectionTitle: {
     marginVertical: SIZES.medium,
     color: COLORS.primary.main,
+  },
+  sessionScrollView: {
+    marginBottom: SIZES.medium,
+  },
+  sessionButton: {
+    marginRight: SIZES.small,
+    minWidth: 100,
+  },
+  takeAttendanceButton: {
+    marginVertical: SIZES.large,
   },
   studentList: {
     marginTop: SIZES.large,
@@ -284,7 +303,7 @@ const styles = StyleSheet.create({
   attendanceButton: {
     minWidth: 100,
   },
-  updateButton: {
+  submitButton: {
     marginTop: SIZES.large,
   },
 });
