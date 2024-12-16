@@ -8,11 +8,11 @@ import { View } from '@/components/Themed';
 export default function HomeScreen() {
 
   const handleNavigateToUpdate = () => {
-    router.push('/update');
+    router.replace('/update');
   };
   
   const handleNavigateToLogin = () => {
-    router.push('/login');
+    router.replace('/login');
   };
 
   return (

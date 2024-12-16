@@ -146,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await SecureStore.setItemAsync('token', data.token);
       await SecureStore.setItemAsync('user', JSON.stringify(data.user));
       setUser(data.user);
-      router.replace('/faculty');
+      // router.replace('/faculty');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
